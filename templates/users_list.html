@@ -1,0 +1,498 @@
+{% extends "base.html" %}
+
+{% block title %}Luminary — All Users{% endblock %}
+
+{% block extra_css %}
+  .users-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  
+  .users-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gold);
+  }
+  
+  .users-header h1 {
+    font-family: var(--display);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  
+  .user-count {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  .user-count span {
+    color: var(--gold);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  
+  /* Search Bar */
+  .search-bar {
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .search-input {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    font-family: var(--body);
+    font-size: 0.95rem;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    border-radius: 4px;
+    transition: border-color 0.2s;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+  
+  .search-btn, .reset-btn {
+    padding: 0.8rem 1.5rem;
+    font-family: var(--body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .search-btn {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  
+  .search-btn:hover {
+    background: var(--gold);
+    color: var(--ink);
+  }
+  
+  .reset-btn {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  
+  .reset-btn:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  
+  /* Users Table */
+  .users-table-wrapper {
+    overflow-x: auto;
+    border-radius: 4px;
+  }
+  
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--paper);
+  }
+  
+  .users-table thead {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  
+  .users-table th {
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  
+  .users-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink);
+  }
+  
+  .users-table tbody tr:hover {
+    background: rgba(201,168,76,0.05);
+    transition: background 0.2s;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 1.1rem;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  
+  .user-email {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  
+  .user-date {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .btn-icon {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-view {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+  
+  .btn-view:hover {
+    background: var(--gold);
+    color: var(--ink);
+  }
+  
+  .btn-delete {
+    color: #dc3545;
+    border-color: #dc3545;
+  }
+  
+  .btn-delete:hover {
+    background: #dc3545;
+    color: white;
+  }
+  
+  /* Modal for Delete Confirmation */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .modal-content {
+    background: var(--paper);
+    margin: 15% auto;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 500px;
+    text-align: center;
+    animation: slideDown 0.3s;
+  }
+  
+  @keyframes slideDown {
+    from {
+      transform: translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .modal-content h3 {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--ink);
+  }
+  
+  .modal-content p {
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+  
+  .modal-buttons button {
+    padding: 0.6rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .modal-confirm {
+    background: #dc3545;
+    color: white;
+  }
+  
+  .modal-confirm:hover {
+    background: #c82333;
+  }
+  
+  .modal-cancel {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  
+  .modal-cancel:hover {
+    background: var(--border);
+  }
+  
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+  
+  .empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+  
+  .empty-state h3 {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+  }
+  
+  .empty-state p {
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .users-container {
+      padding: 1rem;
+      margin: 1rem;
+    }
+    
+    .users-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .users-table th,
+    .users-table td {
+      padding: 0.75rem;
+    }
+    
+    .action-buttons {
+      flex-direction: column;
+    }
+  }
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="users-container">
+    <div class="users-header">
+      <h1>Registered Users</h1>
+      <div class="user-count">
+        Total Users: <span>{{ total_users }}</span>
+      </div>
+    </div>
+    
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search by name or email..." onkeyup="filterUsers()">
+      <button class="search-btn" onclick="filterUsers()">Search</button>
+      <button class="reset-btn" onclick="resetSearch()">Reset</button>
+    </div>
+    
+    <!-- Users Table -->
+    <div class="users-table-wrapper">
+      <table class="users-table" id="usersTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Email</th>
+            <th>Joined Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if users %}
+            {% for user in users %}
+            <tr class="user-row" data-user-id="{{ user.id }}" data-user-name="{{ user.first_name }} {{ user.last_name or '' }}">
+              <td data-label="ID">{{ user.id }}</td>
+              <td data-label="User">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <div class="user-avatar">
+                    {{ user.first_name[0]|upper }}{{ user.last_name[0]|upper if user.last_name else user.first_name[1]|upper }}
+                  </div>
+                  <div>
+                    <div class="user-name">{{ user.first_name }} {{ user.last_name or '' }}</div>
+                  </div>
+                </div>
+              </td>
+              <td data-label="Email" class="user-email">{{ user.email }}</td>
+              <td data-label="Joined Date" class="user-date">
+                {% if user.created_at %}
+                  {{ user.created_at.strftime('%B %d, %Y') }}
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
+              <td data-label="Actions">
+                <div class="action-buttons">
+                  <a href="{{ url_for('user_profile', user_id=user.id) }}" class="btn-icon btn-view">View</a>
+                  <button onclick="showDeleteModal({{ user.id }}, '{{ user.first_name }} {{ user.last_name or '' }}')" class="btn-icon btn-delete">Delete</button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5">
+                <div class="empty-state">
+                  <div class="empty-state-icon">👥</div>
+                  <h3>No Users Yet</h3>
+                  <p>Be the first to create an account!</p>
+                  <a href="{{ url_for('register') }}" class="btn-primary">Register Now</a>
+                </div>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+    
+    {% if users %}
+    <div class="pagination-info" style="margin-top: 1rem; text-align: center; color: var(--muted); font-size: 0.85rem;">
+      Showing {{ users|length }} user(s)
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+  <div class="modal-content">
+    <h3>Confirm Delete</h3>
+    <p>Are you sure you want to delete user <strong id="deleteUserName"></strong>?</p>
+    <p style="font-size: 0.85rem; color: #dc3545;">This action cannot be undone!</p>
+    <div class="modal-buttons">
+      <form id="deleteForm" method="POST">
+        <button type="submit" class="modal-confirm">Delete</button>
+      </form>
+      <button onclick="closeModal()" class="modal-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Search/Filter functionality
+  function filterUsers() {
+    let input = document.getElementById('searchInput');
+    let filter = input.value.toLowerCase();
+    let table = document.getElementById('usersTable');
+    let rows = table.getElementsByClassName('user-row');
+    let visibleCount = 0;
+    
+    for (let i = 0; i < rows.length; i++) {
+      let name = rows[i].getElementsByTagName('td')[1]?.innerText.toLowerCase() || '';
+      let email = rows[i].getElementsByTagName('td')[2]?.innerText.toLowerCase() || '';
+      
+      if (name.includes(filter) || email.includes(filter)) {
+        rows[i].style.display = '';
+        visibleCount++;
+      } else {
+        rows[i].style.display = 'none';
+      }
+    }
+  }
+  
+  // Reset search
+  function resetSearch() {
+    document.getElementById('searchInput').value = '';
+    filterUsers();
+  }
+  
+  // Delete Modal functions
+  let currentUserId = null;
+  
+  function showDeleteModal(userId, userName) {
+    currentUserId = userId;
+    document.getElementById('deleteUserName').textContent = userName;
+    document.getElementById('deleteForm').action = `/user/${userId}/delete`;
+    document.getElementById('deleteModal').style.display = 'block';
+  }
+  
+  function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    currentUserId = null;
+  }
+  
+  // Close modal when clicking outside
+  window.onclick = function(event) {
+    let modal = document.getElementById('deleteModal');
+    if (event.target == modal) {
+      closeModal();
+    }
+  }
+  
+  // Add Enter key support for search
+  document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      filterUsers();
+    }
+  });
+</script>
+{% endblock %}

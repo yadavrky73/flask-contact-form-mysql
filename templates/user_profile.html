@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}Luminary — User Profile{% endblock %}
+
+{% block extra_css %}
+  .profile-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .profile-header {
+    background: linear-gradient(135deg, var(--ink), #1a1917);
+    color: var(--paper);
+    padding: 3rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+  
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--ink);
+    border: 4px solid var(--gold);
+  }
+  
+  .profile-header h1 {
+    font-family: var(--display);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .profile-email {
+    color: var(--gold-light);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .profile-member-since {
+    font-size: 0.85rem;
+    color: rgba(250,248,244,0.6);
+  }
+  
+  .profile-content {
+    padding: 2rem;
+  }
+  
+  .info-section {
+    margin-bottom: 2rem;
+  }
+  
+  .info-section h3 {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    color: var(--ink);
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .info-label {
+    font-weight: 600;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+  
+  .info-value {
+    color: var(--ink);
+    font-size: 1rem;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .stat-card {
+    background: var(--paper);
+    padding: 1rem;
+    text-align: center;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  
+  .stat-number {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  
+  .stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+  
+  .profile-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  
+  .btn-back {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--ink);
+  }
+  
+  .btn-back:hover {
+    border-color: var(--ink);
+    background: rgba(15,14,12,0.04);
+  }
+  
+  @media (max-width: 600px) {
+    .info-grid {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+    
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .profile-header {
+      padding: 2rem 1rem;
+    }
+    
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      font-size: 2rem;
+    }
+    
+    .profile-header h1 {
+      font-size: 1.5rem;
+    }
+  }
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="profile-container">
+    <div class="profile-header">
+      <div class="profile-avatar">
+        {{ user.first_name[0]|upper }}{{ user.last_name[0]|upper if user.last_name else user.first_name[1]|upper }}
+      </div>
+      <h1>{{ user.first_name }} {{ user.last_name or '' }}</h1>
+      <div class="profile-email">{{ user.email }}</div>
+      <div class="profile-member-since">
+        Member since {{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'N/A' }}
+      </div>
+    </div>
+    
+    <div class="profile-content">
+      <div class="info-section">
+        <h3>Personal Information</h3>
+        <div class="info-grid">
+          <div class="info-label">Full Name:</div>
+          <div class="info-value">{{ user.first_name }} {{ user.last_name or '' }}</div>
+          
+          <div class="info-label">Email Address:</div>
+          <div class="info-value">{{ user.email }}</div>
+          
+          <div class="info-label">User ID:</div>
+          <div class="info-value">#{{ user.id }}</div>
+        </div>
+      </div>
+      
+      <div class="info-section">
+        <h3>Account Statistics</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">1</div>
+            <div class="stat-label">Account Status</div>
+            <div style="font-size: 0.75rem; color: #28a745; margin-top: 0.25rem;">● Active</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">
+              {% if user.created_at %}
+                {{ ((now - user.created_at).days) if now else 0 }}
+              {% else %}
+                0
+              {% endif %}
+            </div>
+            <div class="stat-label">Days Active</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Projects</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="profile-actions">
+        <a href="{{ url_for('users_list') }}" class="btn-primary btn-back">← Back to Users</a>
+        <button onclick="showDeleteModal({{ user.id }}, '{{ user.first_name }} {{ user.last_name or '' }}')" class="btn-primary" style="background: #dc3545; border-color: #dc3545;">Delete User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h3>Confirm Delete</h3>
+    <p>Are you sure you want to delete user <strong id="deleteUserName"></strong>?</p>
+    <p style="font-size: 0.85rem; color: #dc3545;">This action cannot be undone!</p>
+    <div class="modal-buttons">
+      <form id="deleteForm" method="POST">
+        <button type="submit" class="modal-confirm">Delete</button>
+      </form>
+      <button onclick="closeModal()" class="modal-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .modal-content {
+    background: var(--paper);
+    margin: 15% auto;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 500px;
+    text-align: center;
+    animation: slideDown 0.3s;
+  }
+  
+  @keyframes slideDown {
+    from {
+      transform: translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .modal-content h3 {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--ink);
+  }
+  
+  .modal-content p {
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+  
+  .modal-buttons button {
+    padding: 0.6rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .modal-confirm {
+    background: #dc3545;
+    color: white;
+  }
+  
+  .modal-confirm:hover {
+    background: #c82333;
+  }
+  
+  .modal-cancel {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  
+  .modal-cancel:hover {
+    background: var(--border);
+  }
+</style>
+
+<script>
+  let currentUserId = null;
+  
+  function showDeleteModal(userId, userName) {
+    currentUserId = userId;
+    document.getElementById('deleteUserName').textContent = userName;
+    document.getElementById('deleteForm').action = `/user/${userId}/delete`;
+    document.getElementById('deleteModal').style.display = 'block';
+  }
+  
+  function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    currentUserId = null;
+  }
+  
+  // Close modal when clicking outside
+  window.onclick = function(event) {
+    let modal = document.getElementById('deleteModal');
+    if (event.target == modal) {
+      closeModal();
+    }
+  }
+</script>
+{% endblock %}

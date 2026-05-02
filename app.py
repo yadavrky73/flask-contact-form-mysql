@@ -4,16 +4,19 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here-change-this-in-production'  # Required for flash messages
+app.secret_key = 'your-secret-key-here-change-this-in-production'
 
 # ✅ MySQL connection
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:system@127.0.0.1:3306/trek_nirvana_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-app.config['TEMPLATES_AUTO_RELOAD'] = True  # Helps with template debugging
-
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 db = SQLAlchemy(app)
+
+# ✅ ADD THIS CONTEXT PROCESSOR - Makes datetime available to all templates
+@app.context_processor
+def inject_now():
+    return {'datetime': datetime}
 
 # Model
 class User(db.Model):
@@ -35,14 +38,12 @@ class User(db.Model):
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Get form data
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
         email = request.form.get('email')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
         
-        # Basic validation
         if not first_name or not email or not password:
             flash('First name, email, and password are required!', 'error')
             return redirect(url_for('register'))
@@ -55,16 +56,13 @@ def register():
             flash('Password must be at least 6 characters long.', 'error')
             return redirect(url_for('register'))
         
-        # Check if user already exists
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             flash('An account with this email already exists. Please log in.', 'error')
             return redirect(url_for('register'))
         
-        # Hash the password for security
         hashed_password = generate_password_hash(password)
         
-        # Create new user
         new_user = User(
             first_name=first_name,
             last_name=last_name,
@@ -83,38 +81,66 @@ def register():
             print(f"Error: {e}")
             return redirect(url_for('register'))
     
-    # For GET request, show the registration form
     return render_template('register.html')
 
 
-# --- FIXED HOME ROUTE (no more automatic user creation!) ---
+# --- HOME ROUTE ---
 @app.route("/")
 def home():
-    # ✅ Removed the buggy user creation code
-    # Just render the homepage template
     return render_template('index.html')
 
 
 @app.route("/products")
 def products():
-    return "Hare Krishna, All Glories to Sri Guru and Gauranga"
+    return render_template('products.html')
 
 
+# --- USER PROFILE VIEW ROUTE ---
+@app.route("/user/<int:user_id>")
+def user_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    return render_template('user_profile.html', user=user)
+
+
+# --- DELETE USER ROUTE ---
+@app.route("/user/<int:user_id>/delete", methods=['POST'])
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'User {user.first_name} {user.last_name or ""} has been deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('An error occurred while deleting the user.', 'error')
+        print(f"Error: {e}")
+    
+    return redirect(url_for('users_list'))
+
+
+# --- USERS LIST ROUTE ---
+@app.route("/users-list")
+def users_list():
+    users = User.query.order_by(User.created_at.desc()).all()
+    total_users = User.query.count()
+    return render_template('users_list.html', users=users, total_users=total_users)
+
+
+# --- OLD SIMPLE USERS ROUTE ---
 @app.route("/users")
 def get_users():
     users = User.query.all()
     return "<br>".join([f"{u.id} - {u.first_name} {u.last_name or ''} - {u.email}" for u in users])
 
 
-# --- TEST ROUTE (only for development, remove in production) ---
+# --- TEST ROUTE ---
 @app.route("/add-test-user")
 def add_test_user():
-    """Only use this for testing - creates a user with proper password"""
     test_user = User(
         first_name="Test",
         last_name="User",
         email="test@example.com",
-        password=generate_password_hash("password123")  # ✅ Password is provided and hashed
+        password=generate_password_hash("password123")
     )
     try:
         db.session.add(test_user)
@@ -125,7 +151,6 @@ def add_test_user():
         return f"Error: {e}"
 
 
-# Run + create DB
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
