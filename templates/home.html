@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Luminary — Home{% endblock %}
+
+{% block extra_css %}
+  /* ── Hero ── */
+  .home-hero {
+    min-height: calc(100vh - 72px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 5rem;
+    padding: 5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-kicker {
+    display: inline-flex; align-items: center; gap: .6rem;
+    font-size: .72rem; font-weight: 500; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--gold); margin-bottom: 1.8rem;
+  }
+  .hero-kicker-line { width: 28px; height: 1px; background: var(--gold); }
+  .home-headline {
+    font-family: var(--display);
+    font-size: clamp(3.2rem, 6vw, 5.2rem);
+    font-weight: 700; line-height: 1.04;
+    color: var(--ink); margin-bottom: 2rem;
+  }
+  .home-headline em { font-style: italic; color: var(--gold); }
+  .home-sub {
+    font-size: 1.05rem; color: var(--muted);
+    line-height: 1.85; max-width: 440px; margin-bottom: 3rem;
+  }
+  .hero-actions { display: flex; gap: 1.2rem; align-items: center; }
+  .hero-link {
+    font-size: .82rem; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink); text-decoration: none;
+    display: flex; align-items: center; gap: .5rem;
+    transition: gap .25s;
+  }
+  .hero-link:hover { gap: .9rem; }
+  .hero-link::after { content: '→'; }
+
+  .hero-right { position: relative; }
+  .hero-img-frame {
+    aspect-ratio: 4/5;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .hero-img-monogram {
+    font-family: var(--display);
+    font-size: 9rem; font-weight: 700;
+    color: rgba(201,168,76,.13);
+    line-height: 1; user-select: none;
+  }
+  .hero-stat-card {
+    position: absolute; bottom: -1.5rem; left: -2rem;
+    background: var(--ink); color: var(--paper);
+    padding: 1.2rem 1.6rem; border-radius: 4px;
+    min-width: 160px;
+  }
+  .stat-number {
+    font-family: var(--display);
+    font-size: 2.2rem; font-weight: 700;
+    color: var(--gold-light); line-height: 1;
+  }
+  .stat-label {
+    font-size: .75rem; font-weight: 500;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: rgba(250,248,244,.45); margin-top: .3rem;
+  }
+
+  /* ── Features ── */
+  .features-section { padding: 8rem 0; }
+  .features-header {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4rem; align-items: end; margin-bottom: 5rem;
+  }
+  .section-eyebrow {
+    font-size: .72rem; font-weight: 500; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--gold); margin-bottom: .8rem;
+  }
+  .section-heading {
+    font-family: var(--display);
+    font-size: clamp(2rem, 3.5vw, 2.8rem);
+    font-weight: 700; line-height: 1.15;
+  }
+  .features-intro {
+    font-size: .95rem; color: var(--muted); line-height: 1.8;
+    align-self: end; padding-bottom: .3rem;
+  }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 2.5px; background: var(--border);
+    border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+  }
+  .feature-item {
+    background: var(--paper); padding: 2.5rem 2rem;
+    transition: background .25s;
+  }
+  .feature-item:hover { background: var(--surface); }
+  .feature-num {
+    font-family: var(--display); font-size: 1rem;
+    font-weight: 600; color: var(--gold);
+    margin-bottom: 1.5rem; display: block;
+  }
+  .feature-name {
+    font-family: var(--display); font-size: 1.4rem;
+    font-weight: 700; margin-bottom: .8rem;
+  }
+  .feature-desc {
+    font-size: .88rem; color: var(--muted); line-height: 1.75;
+  }
+
+  /* ── Stats band ── */
+  .stats-band {
+    background: var(--ink); padding: 5rem 0;
+    border-top: 1px solid rgba(201,168,76,.2);
+    border-bottom: 1px solid rgba(201,168,76,.2);
+  }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;
+  }
+  .stat-item { text-align: center; padding: 1rem 0; }
+  .stat-big {
+    font-family: var(--display); font-size: 3.5rem;
+    font-weight: 700; color: var(--gold-light); line-height: 1;
+    margin-bottom: .5rem;
+  }
+  .stat-desc {
+    font-size: .8rem; font-weight: 500;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: rgba(250,248,244,.4);
+  }
+
+  /* ── CTA section ── */
+  .cta-section {
+    padding: 8rem 0;
+    text-align: center;
+    border-top: 1px solid var(--border);
+  }
+  .cta-label {
+    font-size: .72rem; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--gold);
+    font-weight: 500; margin-bottom: 1.2rem;
+  }
+  .cta-heading {
+    font-family: var(--display);
+    font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+    font-weight: 700; line-height: 1.1;
+    max-width: 600px; margin: 0 auto 1.6rem;
+  }
+  .cta-heading em { font-style: italic; color: var(--gold); }
+  .cta-sub {
+    font-size: 1rem; color: var(--muted); max-width: 420px;
+    margin: 0 auto 2.8rem; line-height: 1.8;
+  }
+  .cta-actions { display: flex; gap: 1rem; justify-content: center; }
+
+  /* ── Scroll fade-in ── */
+  .fade-in {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity .65s ease, transform .65s ease;
+  }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Hero -->
+  <section class="home-hero">
+    <div>
+      <p class="hero-kicker">
+        <span class="hero-kicker-line"></span>
+        Digital Studio
+      </p>
+      <h1 class="home-headline">
+        We Build<br>Things That<br><em>Matter.</em>
+      </h1>
+      <p class="home-sub">
+        Luminary is a boutique creative studio specialising in brand strategy,
+        digital design, and bespoke web development for founders who care
+        deeply about craft.
+      </p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="/work/">See Our Work</a>
+        <a class="hero-link"   href="/about/">Meet the Team</a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-img-frame">
+        <span class="hero-img-monogram">L</span>
+      </div>
+      <div class="hero-stat-card">
+        <div class="stat-number">127+</div>
+        <div class="stat-label">Projects delivered</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Features -->
+<section class="features-section">
+  <div class="container">
+    <div class="features-header fade-in">
+      <div>
+        <p class="section-eyebrow">What We Do</p>
+        <h2 class="section-heading">A Studio Built<br>on Craft</h2>
+      </div>
+      <p class="features-intro">
+        From the first sketch to the final deployment, we obsess over every
+        detail. Our process is transparent, collaborative, and deeply rooted
+        in understanding your audience.
+      </p>
+    </div>
+
+    <div class="features-grid fade-in">
+      <div class="feature-item">
+        <span class="feature-num">01</span>
+        <h3 class="feature-name">Brand Strategy</h3>
+        <p class="feature-desc">We help you discover and articulate what makes you genuinely different — then build a visual identity around that truth.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-num">02</span>
+        <h3 class="feature-name">UI / UX Design</h3>
+        <p class="feature-desc">Interfaces that feel intuitive and look extraordinary. We design for humans first, and aesthetics second — but never sacrifice either.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-num">03</span>
+        <h3 class="feature-name">Web Development</h3>
+        <p class="feature-desc">Clean, performant code built on modern stacks. Django, React, or whatever serves the project best — we're tool-agnostic.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<section class="stats-band fade-in">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-big">127+</div>
+        <div class="stat-desc">Projects</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-big">98%</div>
+        <div class="stat-desc">Client Retention</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-big">8yr</div>
+        <div class="stat-desc">In Business</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-big">14</div>
+        <div class="stat-desc">Studio Awards</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section fade-in">
+  <div class="container">
+    <p class="cta-label">Ready to Begin?</p>
+    <h2 class="cta-heading">Let's Build<br>Something <em>Remarkable.</em></h2>
+    <p class="cta-sub">
+      We take on a limited number of projects each quarter to ensure
+      every client gets our full attention.
+    </p>
+    <div class="cta-actions">
+      <a class="btn-primary" href="/contact/">Start a Project</a>
+      <a class="btn-ghost"   href="/work/">View Portfolio</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+{% endblock %}
